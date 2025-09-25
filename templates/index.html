@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FloatChat</title>
+  <style>
+  body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: url("/static/ocean.jpg") no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  margin: 0;
+}
+
+
+.chat-container {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  width: 650px;
+  max-width: 100%;
+  height: 80vh;
+  border-radius: 22px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all 0.3s ease;
+}
+
+.chat-header {
+  background: linear-gradient(135deg, #0099f7, #12c2e9);
+  padding: 16px;
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+}
+
+#chatbox {
+  flex: 1;
+  padding: 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background : lightblue; /* Light Blue background */
+  border-top: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+
+
+.message {
+  padding: 12px 16px;
+  border-radius: 22px;
+  max-width: 75%;
+  word-wrap: break-word;
+  animation: fadeIn 0.25s ease;
+  font-size: 0.92em;
+  line-height: 1.4em;
+}
+
+.user {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  align-self: flex-end;
+  color: #ffffffe1;
+  border-bottom-right-radius: 8px;
+}
+
+.bot {
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  align-self: flex-start;
+  color: #002;
+  border-bottom-left-radius: 8px;
+}
+
+.typing {
+  align-self: flex-start;
+  font-size: 0.9em;
+  color: red;
+  font-style: italic;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+@keyframes blink {
+  0% {opacity: 0.2;}
+  50% {opacity: 1;}
+  100% {opacity: 0.2;}
+}
+
+/* 🔥 Enhanced Input Area */
+.input-area {
+  display: grid;
+  grid-template-columns: 80px 80px 1fr 70px 80px 70px;
+  gap: 6px;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+/* Inputs */
+#lat-input, #lon-input, #user-input {
+  border-radius: 12px;
+  border: none;
+  padding: 5px;
+  background: rgba(255,255,255,0.2);
+  color:green;
+  font-size: 0.9em;
+  transition: background 0.3s;
+}
+
+#lat-input::placeholder,
+#lon-input::placeholder,
+#user-input::placeholder {
+  color:#0082c8(255,255,255,0.7);
+}
+
+#user-input {
+  width: 91%;
+}
+
+/* Buttons */
+#send-btn, #view-graph, #download-pdf {
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  font-size: 0.85em;
+}
+
+#send-btn { background: linear-gradient(135deg, #1d976c, #93f9b9); }
+#view-graph { background: linear-gradient(135deg, #667db6, #0082c8); }
+#download-pdf { background: linear-gradient(135deg, #f7971e, #ffd200); color: #000; }
+
+#send-btn:hover,
+#view-graph:hover,
+#download-pdf:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(15px);
+  padding: 20px;
+  border-radius: 20px;
+  text-align: center;
+  width: 80%;
+  max-width: 600px;
+  color: white;
+}
+
+.modal-content img {
+  width: 100%;
+  border-radius: 14px;
+  background: #fff;
+  padding: 8px;
+}
+
+.close-btn {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  margin-top: 12px;
+  border-radius: 12px;
+  border: none;
+  padding: 8px 15px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.2);
+}
+
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">🌊 FloatChat</div>
+    <div id="chatbox"></div>
+    <div class="input-area">
+      <input type="number" step="0.01" id="lat-input" placeholder="Latitude">
+      <input type="number" step="0.01" id="lon-input" placeholder="Longitude">
+      <input type="text" id="user-input" placeholder="Ask me about the ocean...">
+      <button id="send-btn">Send</button>
+      <button id="view-graph">📊 Graph</button>
+      <button id="download-pdf">⬇️ PDF</button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="graphModal" class="modal">
+    <div class="modal-content">
+      <h2 style="color:white;">Ocean Temperature (Live)</h2>
+      <img id="graphImage" src="" alt="Ocean Graph">
+      <br>
+      <button class="close-btn" id="closeModal">Close</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    function appendMessage(sender, message) {
+      const div = document.createElement("div");
+      div.classList.add("message", sender);
+      div.textContent = message;
+      chatbox.appendChild(div);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function appendTyping() {
+      const typing = document.createElement("div");
+      typing.classList.add("typing");
+      typing.textContent = "Bot is typing...";
+      typing.id = "typing-indicator";
+      chatbox.appendChild(typing);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function removeTyping() {
+      const typing = document.getElementById("typing-indicator");
+      if (typing) typing.remove();
+    }
+
+    sendBtn.addEventListener("click", () => {
+      const question = userInput.value.trim();
+      const lat = document.getElementById("lat-input").value || 3.0;
+      const lon = document.getElementById("lon-input").value || 73.0;
+
+      if (!question) return;
+      appendMessage("user", question);
+      userInput.value = "";
+      appendTyping();
+
+      fetch("/ask", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `question=${encodeURIComponent(question)}&lat=${lat}&lon=${lon}`
+      })
+      .then(response => response.json())
+      .then(data => { removeTyping(); appendMessage("bot", data.answer); })
+      .catch(() => { removeTyping(); appendMessage("bot", "⚠️ Sorry, something went wrong."); });
+    });
+
+    userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendBtn.click(); });
+
+    // Graph modal logic
+    const modal = document.getElementById("graphModal");
+    const viewGraphBtn = document.getElementById("view-graph");
+    const closeModalBtn = document.getElementById("closeModal");
+    const graphImage = document.getElementById("graphImage");
+
+    viewGraphBtn.addEventListener("click", () => {
+      graphImage.src = "/graph/trend?" + new Date().getTime();
+      modal.style.display = "flex";
+    });
+
+    closeModalBtn.addEventListener("click", () => { modal.style.display = "none"; });
+    window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+
+    // Download chat as PDF
+    document.getElementById("download-pdf").addEventListener("click", () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 10;
+      const messages = chatbox.querySelectorAll(".message");
+      messages.forEach((m) => {
+        const sender = m.classList.contains("user") ? "You" : "Bot";
+        doc.text(`${sender}: ${m.textContent}`, 10, y);
+        y += 10;
+        if (y > 280) { doc.addPage(); y = 10; }
+      });
+      doc.save("FloatChat_Report.pdf");
+    });
+  </script>
+</body>
+</html>
